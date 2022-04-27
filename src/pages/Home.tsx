@@ -1,22 +1,35 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import ExploreContainer from '../components/ExploreContainer';
+import { IonButton, IonContent, IonPage, ToastOptions, useIonToast } from '@ionic/react';
+import { useEffect, useState } from 'react';
 import './Home.css';
 
 const Home: React.FC = () => {
+  const [queue, setQueue] = useState<ToastOptions[]>([])
+  const [isPresenting, setIsPresenting] = useState<boolean>(false)
+  const [present] = useIonToast()
+
+  useEffect(() => {
+    if (!isPresenting && queue.length > 0) {
+      present({
+        ...queue[0],
+        onDidDismiss: () => setIsPresenting(false)
+      })
+      setQueue(queue.slice(1))
+      setIsPresenting(true)
+    }
+  }, [queue, isPresenting])
+
+  const presentToast = (options: ToastOptions) => {
+    setQueue([...queue, options])
+  }
+
+  const clickHandler = () => {
+    presentToast({ message: `Toast ${new Date().valueOf()}`, duration: 2000 })
+  }
+
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Blank</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <ExploreContainer />
+        <IonButton onClick={clickHandler}>Click</IonButton>
       </IonContent>
     </IonPage>
   );
